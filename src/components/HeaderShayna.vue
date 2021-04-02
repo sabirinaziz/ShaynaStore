@@ -30,38 +30,31 @@
                                 Keranjang Belanja &nbsp;
                                 <a href="#">
                                     <i class="icon_bag_alt"></i>
-                                    <span>3</span>
+                                    <span>{{cartUser.length}}</span>
                                 </a>
                                 <div class="cart-hover">
                                     <div class="select-items">
                                         <table>
-                                            <tbody>
-                                                <tr>
+                                            <tbody v-if="cartUser.length > 0">
+                                                <tr v-for="cart in cartUser" :key="cart.id">
                                                     <td class="si-pic">
-                                                        <img src="img/select-product-1.jpg" alt="" />
+                                                        <img class="photo-item" :src="cart.photo" alt="" />
                                                     </td>
                                                     <td class="si-text">
                                                         <div class="product-selected">
-                                                            <p>$60.00 x 1</p>
-                                                            <h6>Kabino Bedside Table</h6>
+                                                            <p>${{cart.price}}</p>
+                                                            <h6>{{cart.name}}</h6>
                                                         </div>
                                                     </td>
-                                                    <td class="si-close">
+                                                    <td @click="removeItem(cart.id)" class="si-close">
                                                         <i class="ti-close"></i>
                                                     </td>
                                                 </tr>
+                                            </tbody>
+                                            <tbody v-else>
                                                 <tr>
-                                                    <td class="si-pic">
-                                                        <img src="img/select-product-2.jpg" alt="" />
-                                                    </td>
-                                                    <td class="si-text">
-                                                        <div class="product-selected">
-                                                            <p>$60.00 x 1</p>
-                                                            <h6>Kabino Bedside Table</h6>
-                                                        </div>
-                                                    </td>
-                                                    <td class="si-close">
-                                                        <i class="ti-close"></i>
+                                                    <td>
+                                                        Keranjang Kosong
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -69,10 +62,10 @@
                                     </div>
                                     <div class="select-total">
                                         <span>total:</span>
-                                        <h5>$120.00</h5>
+                                        <h5>${{subTotal}}.00</h5>
                                     </div>
                                     <div class="select-button">
-                                        <a href="#" class="primary-btn view-card">VIEW CARD</a>
+                                       <router-link to="/shopping-cart" class="primary-btn view-card">VIEW CARD</router-link>
                                         <a href="#" class="primary-btn checkout-btn">CHECK OUT</a>
                                     </div>
                                 </div>
@@ -90,6 +83,47 @@ export default {
     name: 'HeaderShayna',
     props: {
     msg: String
-  }
-}
+  },
+  data() {
+    return {
+      cartUser: []
+    };
+  },
+  methods: {
+      removeItem(idx) {
+        let cartUserStorage = JSON.parse(localStorage.getItem('cartUser'));
+        let itemcartUserStorage = cartUserStorage.map(itemcartUserStorage => itemcartUserStorage.id);
+        
+        let index = itemcartUserStorage.findIndex(id => id==idx);
+        this.cartUser.splice(index, 1);
+        
+        const parsed = JSON.stringify(this.cartUser);
+        localStorage.setItem('cartUser', parsed);
+
+        window.location.reload();
+      }
+  },
+  mounted() {
+        if (localStorage.getItem('cartUser')) {
+            try {
+                this.cartUser = JSON.parse(localStorage.getItem('cartUser'));
+            } catch(e) {
+                localStorage.removeItem('cartUser');
+            }
+        }
+  },
+  computed: {
+      subTotal(){
+        return this.cartUser.reduce(function(items, data){
+            return items + data.price;
+        }, 0);
+    }
+ }
+};
 </script>
+<style scoped>
+    .photo-item {
+        width:80px;
+        height:80px;
+    }
+</style>
