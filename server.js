@@ -4,6 +4,7 @@ const path = require('path')
 
 const app = express()
 
+let server = require('http').Server(app);
 //here we are configuring dist to serve app files
 app.use('/', serveStatic(path.join(__dirname, '/dist')))
 
@@ -13,5 +14,6 @@ app.get(/.*/, function (req, res) {
 })
 
 const port = process.env.PORT || 8080
-app.listen(port)
-console.log(`app is listening on port: ${port}`)
+server.listen(port, () => {
+    console.log("App is running on port " + port);
+});
